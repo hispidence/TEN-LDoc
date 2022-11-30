@@ -1277,20 +1277,33 @@ function Module:dump(verbose)
    end
 end
 
+function Item:isFunction()
+	return self.type == 'function'
+end
+
 function Module:dumpToXML()
 	if not doc.project_level(self.type) then return end
+	local nFuncs = 0
+
 	for item in self.items:iter() do
-		item:dumpToXML(true)
+		if item:isFunction() then
+			nFuncs = nFuncs + 1
+		end
+	end
+	if nFuncs > 0 then
+		io.write("\n<module>")
+		io.write("\n\t<name>",self.name,"</name>\n")
+		io.write("\n\t<functions>\n")
+		for item in self.items:iter() do
+			item:dumpToXML()
+		end
+		io.write("\n\t</functions>\n")
+		io.write("</module>\n")
 	end
 end
 
-function Item:dumpToXML(verbose)
-
-	if self.type ~= 'function' then
-		return
-	end
-
-	local nIndents = 0
+function Item:dumpToXML()
+	local nIndents = 2
 	function printAndIndent(str)
 		io.write('\n'..string.rep('\t', nIndents) .. str)
 		nIndents = nIndents + 1
@@ -1314,7 +1327,6 @@ function Item:dumpToXML(verbose)
 		return str:gsub("^%s*(.-)%s*$", "%1")
 	end
 
-	if verbose then
 		local modName = self.name:match("(%w+)")
 		local funcName = self.name:match("%w+[:%.](%w+)")
 		if not funcName then
@@ -1352,6 +1364,14 @@ function Item:dumpToXML(verbose)
 				printAndIndent '<name>'
 				justPrint(p)
 				printAndUnindent '</name>'
+
+				local paramType = self:type_of_param(i)
+				printAndIndent("<type>") 
+				if(paramType:len() == 0) then
+					print("Parameter " .. i .. " of function " .. funcName .. " has no type")
+				end
+				justPrint(paramType)
+				printAndUnindent("</type>") 
 				local descText = trim(self.params.map[p])
 				if descText:len() > 0 then
 					printAndIndent '<description>'
@@ -1384,7 +1404,6 @@ function Item:dumpToXML(verbose)
 			printAndUnindent("</returns>", true) 
 		end
 		printAndUnindent ('</function>\n', true)
-	end
 end
 
 -- make a text dump of the contents of this File object.
