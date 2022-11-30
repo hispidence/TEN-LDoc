@@ -1295,7 +1295,9 @@ function Module:dumpToXML()
 		io.write("\n\t<name>",self.name,"</name>\n")
 		io.write("\n\t<functions>\n")
 		for item in self.items:iter() do
-			item:dumpToXML()
+			if item:isFunction() then
+				item:dumpToXML()
+			end
 		end
 		io.write("\n\t</functions>\n")
 		io.write("</module>\n")
