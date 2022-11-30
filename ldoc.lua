@@ -657,6 +657,13 @@ for F in file_list:iter() do
    end
 end
 
+local handle = io.open("output.xml", "w")
+io.output(handle)
+for mod in module_list:iter() do
+	mod:dumpToXML()
+end
+io.close(handle)
+
 for mod in module_list:iter() do
    if not args.module then -- no point if we're just showing docs on the console
       mod:resolve_references(module_list)

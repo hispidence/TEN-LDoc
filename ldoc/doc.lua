@@ -1277,6 +1277,107 @@ function Module:dump(verbose)
    end
 end
 
+function Module:dumpToXML()
+	if not doc.project_level(self.type) then return end
+	for item in self.items:iter() do
+		item:dumpToXML(true)
+	end
+end
+
+function Item:dumpToXML(verbose)
+
+	if self.type ~= 'function' then
+		return
+	end
+
+	local nIndents = 0
+	function printAndIndent(str)
+		io.write('\n'..string.rep('\t', nIndents) .. str)
+		nIndents = nIndents + 1
+	end
+
+	function justPrint(str)
+		io.write(str)
+	end
+
+	function printAndUnindent(str, newLine)
+		nIndents = nIndents - 1
+		if newLine then
+			io.write('\n',string.rep('\t', nIndents),str)
+		else
+
+			io.write(str)
+		end
+	end
+
+	function trim(str)
+		return str:gsub("^%s*(.-)%s*$", "%1")
+	end
+
+	if verbose then
+		local modName = self.name:match("(%w+)")
+		local funcName = self.name:match("%w+[:%.](%w+)")
+		if not funcName then funcName = modName end
+
+		printAndIndent('<function>')
+		if modName then
+			printAndIndent '<caller>'
+			justPrint(modName)
+			printAndUnindent '</caller>'
+		end
+		if funcName then
+			printAndIndent '<name>'
+			justPrint(funcName)
+			printAndUnindent '</name>'
+		end
+		printAndIndent '<summary>'
+		justPrint(self.summary)
+		printAndUnindent '</summary>'
+
+		if self.description and self.description:match '%S' then
+			printAndIndent '<description>'
+			justPrint(trim(self.description))
+			printAndUnindent '</description>'
+		end
+		if self.params and #self.params > 0 then
+			printAndIndent '<parameters>'
+			for i,p in ipairs(self.params) do
+				printAndIndent '<parameter>'
+				printAndIndent '<name>'
+				justPrint(p)
+				printAndUnindent '</name>'
+				printAndIndent '<description>'
+				justPrint(trim(self.params.map[p]))
+				printAndUnindent '</description>'
+				printAndUnindent('</parameter>', true)
+			end
+			printAndUnindent('</parameters>', true)
+		end
+		if self.ret and #self.ret > 0 then
+			printAndIndent("<returns>") 
+			for i,r in ipairs(self.ret) do
+				printAndIndent("<return>") 
+				local returnType = self:type_of_ret(i)
+				printAndIndent("<type>") 
+				if(returnType:len() == 0) then
+					print("Return value " .. i .. " of function " .. funcName .. " has no type")
+				end
+				justPrint(returnType)
+
+				printAndUnindent("</type>") 
+
+				printAndIndent("<description>") 
+				justPrint(r)
+
+				printAndUnindent("</description>") 
+				printAndUnindent("</return>", true) 
+			end
+			printAndUnindent("</returns>", true) 
+		end
+		printAndUnindent ('</function>', true)
+	end
+end
+
 -- make a text dump of the contents of this File object.
 -- The level of detail is controlled by the 'verbose' parameter.
 -- Primarily intended as a debugging tool.
