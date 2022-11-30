@@ -1317,7 +1317,10 @@ function Item:dumpToXML(verbose)
 	if verbose then
 		local modName = self.name:match("(%w+)")
 		local funcName = self.name:match("%w+[:%.](%w+)")
-		if not funcName then funcName = modName end
+		if not funcName then
+			funcName = modName
+			modName = nil
+		end
 
 		printAndIndent('<function>')
 		if modName then
@@ -1330,9 +1333,12 @@ function Item:dumpToXML(verbose)
 			justPrint(funcName)
 			printAndUnindent '</name>'
 		end
-		printAndIndent '<summary>'
-		justPrint(self.summary)
-		printAndUnindent '</summary>'
+
+		if self.summary:len() > 0 then
+			printAndIndent '<summary>'
+			justPrint(self.summary)
+			printAndUnindent '</summary>'
+		end
 
 		if self.description and self.description:match '%S' then
 			printAndIndent '<description>'
@@ -1346,9 +1352,12 @@ function Item:dumpToXML(verbose)
 				printAndIndent '<name>'
 				justPrint(p)
 				printAndUnindent '</name>'
-				printAndIndent '<description>'
-				justPrint(trim(self.params.map[p]))
-				printAndUnindent '</description>'
+				local descText = trim(self.params.map[p])
+				if descText:len() > 0 then
+					printAndIndent '<description>'
+					justPrint(descText)
+					printAndUnindent '</description>'
+				end
 				printAndUnindent('</parameter>', true)
 			end
 			printAndUnindent('</parameters>', true)
@@ -1374,7 +1383,7 @@ function Item:dumpToXML(verbose)
 			end
 			printAndUnindent("</returns>", true) 
 		end
-		printAndUnindent ('</function>', true)
+		printAndUnindent ('</function>\n', true)
 	end
 end
 
