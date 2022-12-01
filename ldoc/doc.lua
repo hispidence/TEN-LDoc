@@ -1359,8 +1359,11 @@ function Item:dumpToXML(moduleName)
 
 				local paramType = self:type_of_param(i)
 				printAndIndent("<type>") 
-				if(paramType:len() == 0) then
-					print("Parameter " .. i .. " of function " .. funcName .. " has no type")
+				if p == "..." then
+					paramType = "..."
+				elseif paramType:len() == 0 then
+					print("Parameter " .. i .. " of function " .. funcName .. 
+					" in module " .. moduleName .. " has no type")
 				end
 				justPrint(paramType)
 				printAndUnindent("</type>") 
@@ -1380,8 +1383,9 @@ function Item:dumpToXML(moduleName)
 				printAndIndent("<return>") 
 				local returnType = self:type_of_ret(i)
 				printAndIndent("<type>") 
-				if(returnType:len() == 0) then
-					print("Return value " .. i .. " of function " .. funcName .. " has no type")
+				if returnType:len() == 0 then
+					print("Return value " .. i .. " of function " .. funcName ..
+					" in module " .. moduleName .. " has no type")
 				end
 				justPrint(returnType)
 
