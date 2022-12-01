@@ -1283,29 +1283,15 @@ end
 
 function Module:dumpToXML()
 	if not doc.project_level(self.type) then return end
-	local nFuncs = 0
-
 	for item in self.items:iter() do
 		if item:isFunction() then
-			nFuncs = nFuncs + 1
+			item:dumpToXML(self.name)
 		end
-	end
-	if nFuncs > 0 then
-		io.write("\n<module>")
-		io.write("\n\t<name>",self.name,"</name>\n")
-		io.write("\n\t<functions>\n")
-		for item in self.items:iter() do
-			if item:isFunction() then
-				item:dumpToXML()
-			end
-		end
-		io.write("\n\t</functions>\n")
-		io.write("</module>\n")
 	end
 end
 
-function Item:dumpToXML()
-	local nIndents = 2
+function Item:dumpToXML(moduleName)
+	local nIndents = 0
 	function printAndIndent(str)
 		io.write('\n'..string.rep('\t', nIndents) .. str)
 		nIndents = nIndents + 1
@@ -1329,17 +1315,21 @@ function Item:dumpToXML()
 		return str:gsub("^%s*(.-)%s*$", "%1")
 	end
 
-		local modName = self.name:match("(%w+)")
+		local callerType = self.name:match("(%w+)")
 		local funcName = self.name:match("%w+[:%.](%w+)")
 		if not funcName then
-			funcName = modName
-			modName = nil
+			funcName = callerType
+			callerType = nil
 		end
 
 		printAndIndent('<function>')
-		if modName then
+
+		printAndIndent '<module>'
+		justPrint(moduleName)
+		printAndUnindent '</module>'
+		if callerType then
 			printAndIndent '<caller>'
-			justPrint(modName)
+			justPrint(callerType)
 			printAndUnindent '</caller>'
 		end
 		if funcName then
