@@ -371,7 +371,9 @@ function ldoc.source_ref (fun)
    for m in mods:iter() do
       local kind, lkind, modules = unpack(m)
       check_directory(args.dir..lkind)
-      project:put_kind_first(kind)
+	  if not ldoc.keep_menu_order then
+		  project:put_kind_first(kind)
+	  end
       for m in modules() do
          ldoc.module = m
          ldoc.body = m.body

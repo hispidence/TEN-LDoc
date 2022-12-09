@@ -252,7 +252,8 @@ local ldoc_contents = {
    'dont_escape_underscore','global_lookup','prettify_files','convert_opt', 'user_keywords',
    'postprocess_html',
    'custom_css','version',
-   'no_args_infer'
+   'no_args_infer',
+   'keep_menu_order'
 }
 ldoc_contents = tablex.makeset(ldoc_contents)
 
