@@ -1134,6 +1134,11 @@ function Module:process_see_reference (s,modules,istype)
       if not istype then return true
       else
          return item.type == 'classmod'
+				or item.type == 'tenprimitive'
+				or item.type == 'tenclass'
+				or item.type == 'luautil'
+				or item.type == 'tentable'
+				or item.type == 'enum'
       end
    end
 

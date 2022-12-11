@@ -239,6 +239,10 @@ function ldoc.source_ref (fun)
             if ref.label and sym == name then
                name = ref.label
             end
+			local shortName = name:match("%.(%w*)$")
+			if shortName then
+				name = shortName
+			end
             types[#types+1] = ('<a class="type" href="%s">%s</a>'):format(ldoc.href(ref),name)
          else
             types[#types+1] = '<span class="type">'..name..'</span>'
